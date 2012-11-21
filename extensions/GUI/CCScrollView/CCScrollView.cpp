@@ -58,6 +58,8 @@ CCScrollView::CCScrollView()
 , m_pTouches(NULL)
 , m_fMinScale(0.0f)
 , m_fMaxScale(0.0f)
+, m_bTableMoved(false)
+, m_nDefaultTouchPriority(1)
 {
 
 }
@@ -145,7 +147,7 @@ bool CCScrollView::init()
 
 void CCScrollView::registerWithTouchDispatcher()
 {
-    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, false);
+    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, m_nDefaultTouchPriority, false);
 }
 
 bool CCScrollView::isNodeVisible(CCNode* node)
@@ -611,9 +613,15 @@ bool CCScrollView::ccTouchBegan(CCTouch* touch, CCEvent* event)
     { // scrolling
         m_tTouchPoint     = this->convertTouchToNodeSpace(touch);
         m_bTouchMoved     = false;
-        m_bDragging     = true; //dragging started
+        const CCSize& viewSize=getViewSize();
+        const CCSize& containerSize=m_pContainer->getContentSize();
+        if ( (m_eDirection==kCCScrollViewDirectionVertical && containerSize.height>=viewSize.height)
+            || (m_eDirection==kCCScrollViewDirectionHorizontal && containerSize.width>=viewSize.width) )
+            m_bDragging     = true; //dragging started
         m_tScrollDistance = ccp(0.0f, 0.0f);
         m_fTouchLength    = 0.0f;
+        m_bTableMoved     = false;
+        m_tTableOffset    = CCPointZero;
     }
     else if (m_pTouches->count() == 2)
     {
@@ -648,6 +656,10 @@ void CCScrollView::ccTouchMoved(CCTouch* touch, CCEvent* event)
             newPoint     = this->convertTouchToNodeSpace((CCTouch*)m_pTouches->objectAtIndex(0));
             moveDistance = ccpSub(newPoint, m_tTouchPoint);
             m_tTouchPoint  = newPoint;
+            
+            m_tTableOffset = ccpAdd(m_tTableOffset, moveDistance);
+            if ( !m_bTableMoved && ( fabs(m_tTableOffset.x) >= 10 || fabs(m_tTableOffset.y) >= 10 ) )
+                m_bTableMoved = true;
             
             if (frame.containsPoint(this->convertToWorldSpace(newPoint)))
             {
@@ -707,6 +719,7 @@ void CCScrollView::ccTouchEnded(CCTouch* touch, CCEvent* event)
     {
         m_bDragging = false;    
         m_bTouchMoved = false;
+        m_bTableMoved = false;
     }
 }
 
@@ -721,6 +734,7 @@ void CCScrollView::ccTouchCancelled(CCTouch* touch, CCEvent* event)
     {
         m_bDragging = false;    
         m_bTouchMoved = false;
+        m_bTableMoved = false;
     }
 }
 

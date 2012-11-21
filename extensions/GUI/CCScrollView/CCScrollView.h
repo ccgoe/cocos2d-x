@@ -339,6 +339,11 @@ protected:
      * max and min scale
      */
     float m_fMinScale, m_fMaxScale;
+    
+    bool m_bTableMoved;
+    CCPoint m_tTableOffset;
+    /** Changes the priority of the scrollview. The lower the number, the higher the priority. */
+    CC_SYNTHESIZE(int, m_nDefaultTouchPriority, DefaultTouchPriority);
 };
 
 // end of GUI group

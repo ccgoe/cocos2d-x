@@ -486,7 +486,7 @@ void CCTableView::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
     if (!this->isVisible()) {
         return;
     }
-    if (m_pTouches->count() == 1 && !this->isTouchMoved()) {
+    if (m_pTouches->count() == 1 && !m_bTableMoved) { // !this->isTouchMoved()) {
         unsigned int        index;
         CCTableViewCell   *cell;
         CCPoint           point;

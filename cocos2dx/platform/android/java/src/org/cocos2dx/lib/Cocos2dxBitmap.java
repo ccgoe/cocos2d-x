@@ -285,7 +285,7 @@ public class Cocos2dxBitmap {
 					i = lastIndexOfSpace;
 				} else {
 					/* Should not exceed the width. */
-					if (tempWidth > pMaxWidth) {
+					if ((i-1)>start && tempWidth > pMaxWidth) {
 						strList.add(pString.substring(start, i - 1));
 						/* Compute from previous char. */
 						--i;
@@ -295,8 +295,8 @@ public class Cocos2dxBitmap {
 				}
 
 				/* Remove spaces at the beginning of a new line. */
-				while (pString.indexOf(i++) == ' ') {
-					;
+				while (i<charLength && pString.indexOf(i) == ' ') {
+					++i;
 				}
 
 				start = i;
